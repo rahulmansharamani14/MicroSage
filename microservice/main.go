@@ -1,32 +1,27 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gin-gonic/gin"
 )
 
 func main(){
-	router := chi.NewRouter()
+	r := gin.Default()
 
-	router.Use(middleware.Logger)
-	
-	router.Get("/hello", basicHandler)
-	
+	// Simple Health check Endpoint
+	r.GET("/health", func(c *gin.Context){
+		c.JSON(http.StatusOK, gin.H{
+			"status": "healthy",
+		})
+	})
 
-	server := &http.Server{
-		Addr : ":8000",
-		Handler : router,
-	}
+	// Main Endpoint
+	r.GET(("/"), func(c *gin.Context){
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Hello Microsage!",
+		})
+	})
 
-	err := server.ListenAndServe()
-
-	if err != nil{
-		fmt.Println("Failed to start server", err)
-	}
+	r.Run(":8080")
 }
 
-func basicHandler(w http.ResponseWriter, r *http.Request){
-	w.Write([]byte("Hello World"))	 
-}
